@@ -29,21 +29,20 @@ dPair distanceToXY1(dPair gps1, dPair gps2) {
 	return dPair(dx, dy);
 }
 
-double distanceToLonLat1(double lat1, dPair d) {
+dPair distanceToLonLat1(double lat1, dPair d) {
 	double dx = d.first;
 	double dy = d.second;
 	double earthRadius = 6371000; //meters
 
 	dx = dx / earthRadius;
 	dy = dy / earthRadius;
+	dx = tan(dx / 2) * tan(dx / 2) / (1 + tan(dx / 2) * tan(dx / 2));
+	dy = tan(dy / 2) * tan(dy / 2) / (1 + tan(dy / 2) * tan(dy / 2));
 
-	double a = tan(c / 2) * tan(c / 2);
-	a = a / (1 + a);
-	double dLat = asin(sqrt(a)) * 180. / PI;
-	double lat2 = lat1 + dLat;
-	cout << "dlat=" << dLat << " lat2=" << lat2 << endl;
+	double dLat = 2 * asin(sqrt(dy));
+	double dLon = 2 * asin(sqrt(dx) / (cos(toRadians(lat1) * cos(toRadians(lat1)))));
 
-	return lat2;
+	return dPair(dLon, dLat);
 }
 
 std::pair<double, double> distanceToXY2(dPair gps1, dPair gps2) {
@@ -90,9 +89,9 @@ int main(int argc, char* argv[]) {
 	d = distanceToXY1(dPair(lon1, lat1), dPair(lon2, lat2));
 	cout << "dx= " << d.first << " dy=" << d.second << " d=" << sqrt(d.first * d.first + d.second * d.second) << endl;
 
-	//d1 = distanceToLonLat1(lat1, dx, dy);
-	//cout << "Lon2= " << lon1 + d.first << endl;
-	//cout << "Lat2= " << lat1 + d.second << endl;
+	d = distanceToLonLat1(lat1, d);
+	cout << "Lon2= " << lon1 + d.first << endl;
+	cout << "Lat2= " << lat1 + d.second << endl;
 
 	cout << endl << "Standard dx=" << 175.5 << " dy=" << -2890.2 << " d=" << 2895.92 << endl;
 	cout << "Standard Lon2 = " << lon2 << " Lat2=" << lat2 << endl;
